@@ -1,28 +1,22 @@
 using System.Diagnostics.CodeAnalysis;
-using Buildalyzer;
+using Stryker.Core.Roslyn;
 
 namespace Stryker.Core.Testing
 {
     /// <summary>
     /// This is an interface to mock buildalyzer classes
     /// </summary>
-    public interface IBuildalyzerProvider
+    public interface IProjectAnalyzerManagerProvider
     {
-        IAnalyzerManager Provide(AnalyzerManagerOptions options = null);
-        IAnalyzerManager Provide(string solutionFilePath, AnalyzerManagerOptions options = null);
+        IProjectAnalyzerManager Provide(string solutionFilePath);
     }
 
     [ExcludeFromCodeCoverage]
-    public class BuildalyzerProvider : IBuildalyzerProvider
+    public class ProjectAnalyzerManagerProvider : IProjectAnalyzerManagerProvider
     {
-        public IAnalyzerManager Provide(AnalyzerManagerOptions options = null)
+        public IProjectAnalyzerManager Provide(string solutionFilePath)
         {
-            return new AnalyzerManager(options);
-        }
-
-        public IAnalyzerManager Provide(string solutionFilePath, AnalyzerManagerOptions options = null)
-        {
-            return new AnalyzerManager(solutionFilePath, options);
+            return new ProjectAnalyzerManager(solutionFilePath, string.Empty);
         }
     }
 }

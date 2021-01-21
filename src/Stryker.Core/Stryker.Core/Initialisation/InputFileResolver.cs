@@ -11,6 +11,7 @@ using Stryker.Core.Initialisation.Buildalyzer;
 using Stryker.Core.Logging;
 using Stryker.Core.Options;
 using Stryker.Core.ProjectComponents;
+using Stryker.Core.Roslyn;
 using Stryker.Core.TestRunners;
 
 
@@ -36,6 +37,9 @@ namespace Stryker.Core.Initialisation
 
         public InputFileResolver(IFileSystem fileSystem, IProjectFileReader projectFileReader)
         {
+            BuildLocator buildLocator = new BuildLocator();
+            buildLocator.Initialize();
+
             _fileSystem = fileSystem;
             _projectFileReader = projectFileReader ?? new ProjectFileReader();
             _logger = ApplicationLogging.LoggerFactory.CreateLogger<InputFileResolver>();
@@ -178,7 +182,7 @@ namespace Stryker.Core.Initialisation
         {
             // if references contains Microsoft.VisualStudio.QualityTools.UnitTestFramework 
             // we have detected usage of mstest V1 and should exit
-            if (projectInfo.TestProjectAnalyzerResults.Any(testProject => testProject.References
+            if (projectInfo.TestProjectAnalyzerResults.Any(testProject => testProject.ProjectReferences
                 .Any(r => r.Contains("Microsoft.VisualStudio.QualityTools.UnitTestFramework"))))
             {
                 throw new StrykerInputException("Please upgrade to MsTest V2. Stryker.NET uses VSTest which does not support MsTest V1.",

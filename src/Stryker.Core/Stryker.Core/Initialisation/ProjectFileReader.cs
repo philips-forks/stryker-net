@@ -1,9 +1,9 @@
-using System.Linq;
 using Buildalyzer;
 using Microsoft.Build.Exceptions;
 using Microsoft.Extensions.Logging;
 using Stryker.Core.Exceptions;
 using Stryker.Core.Logging;
+using Stryker.Core.Roslyn;
 
 namespace Stryker.Core.Initialisation
 {
@@ -25,26 +25,19 @@ namespace Stryker.Core.Initialisation
 
         public IAnalyzerResult AnalyzeProject(string projectFilePath, string solutionFilePath)
         {
-            AnalyzerManager manager;
-            if (solutionFilePath == null)
+            _logger.LogDebug("Analyzing solution file {0}", solutionFilePath);
+            IProjectAnalyzerManager manager;
+            try
             {
-                manager = new AnalyzerManager();
+                manager = new ProjectAnalyzerManager(solutionFilePath, projectFilePath);
             }
-            else
+            catch (InvalidProjectFileException)
             {
-                _logger.LogDebug("Analyzing solution file {0}", solutionFilePath);
-                try
-                {
-                    manager = new AnalyzerManager(solutionFilePath);
-                }
-                catch (InvalidProjectFileException)
-                {
-                    throw new StrykerInputException($"Incorrect solution path \"{solutionFilePath}\". Solution file not found. Please review your solution path setting.");
-                }
+                throw new StrykerInputException($"Incorrect solution path \"{solutionFilePath}\". Solution file not found. Please review your solution path setting.");
             }
 
             _logger.LogDebug("Analyzing project file {0}", projectFilePath);
-            var analyzerResult = manager.GetProject(projectFilePath).Build().First();
+            var analyzerResult = manager.Projects[projectFilePath].Build();
             if (!analyzerResult.Succeeded)
             {
                 if (!analyzerResult.TargetFramework.Contains("netcoreapp"))
@@ -52,7 +45,7 @@ namespace Stryker.Core.Initialisation
                     // buildalyzer failed to find restored packages, retry after nuget restore
                     _logger.LogDebug("Project analyzer result not successful, restoring packages");
                     _nugetRestoreProcess.RestorePackages(solutionFilePath);
-                    analyzerResult = manager.GetProject(projectFilePath).Build().First();
+                    analyzerResult = manager.Projects[projectFilePath].Build();
                 }
                 else
                 {

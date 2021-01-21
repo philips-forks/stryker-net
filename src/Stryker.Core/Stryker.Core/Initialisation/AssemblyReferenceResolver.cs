@@ -1,13 +1,13 @@
-﻿using Microsoft.CodeAnalysis;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using Stryker.Core.Logging;
-using System.Collections.Generic;
 
 namespace Stryker.Core.Initialisation
 {
     public interface IAssemblyReferenceResolver
     {
-        IEnumerable<PortableExecutableReference> LoadProjectReferences(string[] projectReferencePaths);
+        IEnumerable<PortableExecutableReference> LoadProjectReferences(IEnumerable<string> projectReferencePaths);
     }
 
     /// <summary>
@@ -28,7 +28,7 @@ namespace Stryker.Core.Initialisation
         /// </summary>
         /// <param name="projectFile">The test project file location</param>
         /// <returns>References</returns>
-        public IEnumerable<PortableExecutableReference> LoadProjectReferences(string[] projectReferencePaths)
+        public IEnumerable<PortableExecutableReference> LoadProjectReferences(IEnumerable<string> projectReferencePaths)
         {
             foreach (var path in projectReferencePaths)
             {

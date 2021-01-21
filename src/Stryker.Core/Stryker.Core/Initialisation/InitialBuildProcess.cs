@@ -1,9 +1,12 @@
+using System.IO;
+using Microsoft.Build.Definition;
+using Microsoft.Build.Evaluation;
+using Microsoft.Build.Logging;
 using Microsoft.Extensions.Logging;
 using Stryker.Core.Exceptions;
 using Stryker.Core.Logging;
 using Stryker.Core.Testing;
 using Stryker.Core.ToolHelpers;
-using System.IO;
 
 namespace Stryker.Core.Initialisation
 {
@@ -45,8 +48,12 @@ namespace Stryker.Core.Initialisation
             }
             else
             {
+                Project project = Project.FromFile(Path.Combine(projectPath, "Philips.iX.Culture.Test.csproj"), new ProjectOptions());
+                ConsoleLogger logger = new ConsoleLogger();
+                bool bresult = project.Build(logger);
+
                 // Build with dotnet build
-                result = _processExecutor.Start(projectPath, "dotnet", $"build \"{Path.GetFileName(projectPath)}\"");
+                result = _processExecutor.Start(projectPath, "dotnet", $"build --no-restore \"{Path.GetFileName(projectPath)}\"");
                 CheckBuildResult(result, "dotnet build", $"\"{Path.GetFileName(projectPath)}\"");
             }
         }

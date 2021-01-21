@@ -23,13 +23,13 @@ namespace Stryker.Core.Initialisation
     public class ProjectOrchestrator : IProjectOrchestrator
     {
         private readonly ILogger _logger;
-        private readonly IBuildalyzerProvider _buildalyzerProvider;
+        private readonly IProjectAnalyzerManagerProvider _buildalyzerProvider;
         private readonly IProjectMutator _projectMutator;
 
-        public ProjectOrchestrator(IBuildalyzerProvider buildalyzerProvider = null,
+        public ProjectOrchestrator(IProjectAnalyzerManagerProvider buildalyzerProvider = null,
             IProjectMutator projectMutator = null)
         {
-            _buildalyzerProvider = buildalyzerProvider ?? new BuildalyzerProvider();
+            _buildalyzerProvider = buildalyzerProvider ?? new ProjectAnalyzerManagerProvider();
             _projectMutator = projectMutator ?? new ProjectMutator();
             _logger = ApplicationLogging.LoggerFactory.CreateLogger<ProjectOrchestrator>();
         }
@@ -105,17 +105,17 @@ namespace Stryker.Core.Initialisation
             {
                 Parallel.ForEach(manager.Projects.Values, project =>
                 {
-                    _logger.LogDebug("Analysing {projectFilePath}", project.ProjectFile.Path);
+                    _logger.LogDebug("Analysing {projectFilePath}", project.ProjectFilePath);
                     var buildResult = project.Build();
-                    var projectAnalyzerResult = buildResult.Results.FirstOrDefault();
+                    var projectAnalyzerResult = buildResult/*.Results.FirstOrDefault()*/;
                     if (projectAnalyzerResult is { })
                     {
                         projectsAnalyzerResults.Add(projectAnalyzerResult);
-                        _logger.LogDebug("Analysis of project {projectFilePath} succeeded", project.ProjectFile.Path);
+                        _logger.LogDebug("Analysis of project {projectFilePath} succeeded", project.ProjectFilePath);
                     }
                     else
                     {
-                        _logger.LogWarning("Analysis of project {projectFilePath} failed", project.ProjectFile.Path);
+                        _logger.LogWarning("Analysis of project {projectFilePath} failed", project.ProjectFilePath);
                     }
                 });
             }

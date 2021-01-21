@@ -36,15 +36,6 @@ namespace Stryker.Core.UnitTest
             {
                 analyzerResultMock.Setup(x => x.TargetFramework).Returns(targetFramework);
             }
-            if (packageReferences != null)
-            {
-                analyzerResultMock.Setup(x => x.PackageReferences).Returns(packageReferences);
-            }
-            if (references != null)
-            {
-                analyzerResultMock.Setup(x => x.References).Returns(references);
-            }
-
             return analyzerResultMock;
         }
     }
